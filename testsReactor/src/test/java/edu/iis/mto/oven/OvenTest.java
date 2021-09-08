@@ -142,5 +142,32 @@ class OvenTest {
         in.verify(heatingModule).heater(any(HeatingSettings.class));
     }
 
+    @Test
+    void shouldInvokeOnceCoolerAtFinishOfProgramWithoutThermoCirculation()
+    {
+        List<ProgramStage> programStages= List.of(
+                ProgramStage.builder()
+                        .withStageTime(90)
+                        .withHeat(HeatType.HEATER)
+                        .withTargetTemp(220)
+                        .build(),
+                ProgramStage.builder()
+                        .withStageTime(90)
+                        .withHeat(HeatType.GRILL)
+                        .withTargetTemp(220)
+                        .build()
+        );
+        bakingProgram = BakingProgram.builder()
+                .withStages(programStages)
+                .withInitialTemp(properTemp)
+                .withCoolAtFinish(true)
+                .build();
+
+        when(ovenFan.isOn()).thenReturn(true);
+
+        oven.runProgram(bakingProgram);
+
+        verify(ovenFan, times(1)).on();
+    }
 
 }

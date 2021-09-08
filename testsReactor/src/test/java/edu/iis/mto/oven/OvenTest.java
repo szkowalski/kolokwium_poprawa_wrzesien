@@ -4,12 +4,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -69,7 +69,11 @@ class OvenTest {
     @Test
     void shouldOnAndOffFanWhenProgramWithThermalCircuit()
     {
-        fail("unimplemented");
+        oven.runProgram(bakingProgram);
+        verify(ovenFan, times(1)).off();
+        InOrder in = inOrder(ovenFan);
+        in.verify(ovenFan).on();
+        in.verify(ovenFan).off();
     }
 
     @Test

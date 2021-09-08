@@ -4,6 +4,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,30 +40,30 @@ class OvenTest {
     );
     BakingProgram bakingProgram;
 
+    int properTemp=150;
+
     @BeforeEach
     void setUp() {
         oven = new Oven(heatingModule, ovenFan);
+
+        bakingProgram = BakingProgram.builder()
+                .withInitialTemp(properTemp)
+                .withStages(programStages)
+                .build();
     }
 
     @Test
     void shouldStartBakingWithProperTemp()
     {
-        int initialTemp = 120;
-
-        bakingProgram = BakingProgram.builder()
-                .withInitialTemp(initialTemp)
-                .withStages(programStages)
-                .build();
-
         oven.runProgram(bakingProgram);
-
-        assertEquals(initialTemp, bakingProgram.getInitialTemp());
+        assertEquals(properTemp, bakingProgram.getInitialTemp());
     }
 
     @Test
     void shouldInvokeFanMethodWhenProgramWithThermalCircuit()
     {
-        fail("unimplemented");
+        oven.runProgram(bakingProgram);
+        verify(ovenFan, times(1)).on();
     }
 
     @Test

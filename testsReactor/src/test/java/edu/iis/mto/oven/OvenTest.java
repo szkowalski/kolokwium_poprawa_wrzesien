@@ -2,8 +2,7 @@ package edu.iis.mto.oven;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -28,12 +27,12 @@ class OvenTest {
 
     List<ProgramStage> programStages= List.of(
             ProgramStage.builder()
-                    .withStageTime(60)
+                    .withStageTime(90)
                     .withHeat(HeatType.THERMO_CIRCULATION)
                     .withTargetTemp(220)
                     .build(),
             ProgramStage.builder()
-                    .withStageTime(120)
+                    .withStageTime(90)
                     .withHeat(HeatType.GRILL)
                     .withTargetTemp(220)
                     .build()
@@ -41,6 +40,7 @@ class OvenTest {
     BakingProgram bakingProgram;
 
     int properTemp=150;
+    int properTime=90;
 
     @BeforeEach
     void setUp() {
@@ -77,15 +77,38 @@ class OvenTest {
     }
 
     @Test
-    void shouldInvokeGrillWhenProgramHasGrillHeatType()
-    {
-        fail("unimplemented");
+    void shouldInvokeGrillWhenProgramHasGrillHeatType() throws HeatingException {
+
+
+        ProgramStage stage = ProgramStage.builder()
+                .withTargetTemp(properTemp)
+                .withStageTime(properTime)
+                .withHeat(HeatType.GRILL)
+                .build();
+        List<ProgramStage> stages = List.of(stage);
+
+        HeatingSettings settings = HeatingSettings.builder()
+                .withTargetTemp(properTemp)
+                .withTimeInMinutes(properTime)
+                .build();
+
+        BakingProgram program = BakingProgram.builder()
+                .withInitialTemp(0)
+                .withStages(stages)
+                .build();
+
+        oven.runProgram(program);
+
+        verify(heatingModule).grill(settings);
     }
 
     @Test
-    void shouldThrowOvenExceptionOnHeatingException()
-    {
-        fail("unimplemented");
+    void shouldThrowOvenExceptionOnHeatingException() throws HeatingException {
+        assertNotNull(programStages);
+        doThrow(new HeatingException()).when(heatingModule).termalCircuit(any());
+        assertThrows(OvenException.class,()->{
+            oven.runProgram(bakingProgram);
+        });
     }
 
 }

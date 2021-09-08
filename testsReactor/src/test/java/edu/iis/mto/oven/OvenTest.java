@@ -2,6 +2,7 @@ package edu.iis.mto.oven;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -23,35 +24,38 @@ class OvenTest {
 
     Oven oven;
 
-    List<ProgramStage> programStages;
+    List<ProgramStage> programStages= List.of(
+            ProgramStage.builder()
+                    .withStageTime(60)
+                    .withHeat(HeatType.THERMO_CIRCULATION)
+                    .withTargetTemp(220)
+                    .build(),
+            ProgramStage.builder()
+                    .withStageTime(120)
+                    .withHeat(HeatType.GRILL)
+                    .withTargetTemp(220)
+                    .build()
+    );
     BakingProgram bakingProgram;
 
     @BeforeEach
     void setUp() {
         oven = new Oven(heatingModule, ovenFan);
-
-        programStages = List.of(
-                ProgramStage.builder()
-                        .withStageTime(60)
-                        .withHeat(HeatType.THERMO_CIRCULATION)
-                        .withTargetTemp(220)
-                        .build(),
-                ProgramStage.builder()
-                        .withStageTime(120)
-                        .withHeat(HeatType.GRILL)
-                        .withTargetTemp(220)
-                        .build()
-        );
-        bakingProgram = BakingProgram.builder()
-                .withInitialTemp(100)
-                .withStages(programStages)
-                .build();
     }
 
     @Test
     void shouldStartBakingWithProperTemp()
     {
-        fail("unimplemented");
+        int initialTemp = 120;
+
+        bakingProgram = BakingProgram.builder()
+                .withInitialTemp(initialTemp)
+                .withStages(programStages)
+                .build();
+
+        oven.runProgram(bakingProgram);
+
+        assertEquals(initialTemp, bakingProgram.getInitialTemp());
     }
 
     @Test

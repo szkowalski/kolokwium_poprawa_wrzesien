@@ -111,4 +111,36 @@ class OvenTest {
         });
     }
 
+    @Test
+    void shouldInvokeAllTypesInOrderDuringProgramWithDifferentStages() throws HeatingException {
+        List<ProgramStage> stages = List.of(
+                ProgramStage.builder()
+                        .withStageTime(properTime)
+                        .withHeat(HeatType.THERMO_CIRCULATION)
+                        .withTargetTemp(properTemp)
+                        .build(),
+                ProgramStage.builder()
+                        .withStageTime(properTime)
+                        .withHeat(HeatType.GRILL)
+                        .withTargetTemp(properTemp)
+                        .build(),
+                ProgramStage.builder()
+                        .withStageTime(properTime)
+                        .withHeat(HeatType.HEATER)
+                        .withTargetTemp(properTemp)
+                        .build()
+
+        );
+        bakingProgram = BakingProgram.builder()
+                .withInitialTemp(properTemp)
+                .withStages(stages)
+                .build();
+        oven.runProgram(bakingProgram);
+        InOrder in = inOrder(heatingModule);
+        in.verify(heatingModule).termalCircuit(any(HeatingSettings.class));
+        in.verify(heatingModule).grill(any(HeatingSettings.class));
+        in.verify(heatingModule).heater(any(HeatingSettings.class));
+    }
+
+
 }
